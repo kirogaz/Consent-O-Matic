@@ -1607,7 +1607,9 @@ export default class Language {
             if (translation[lang] != null) {
                 result = translation[lang];
             } else {
-                console.warn("Missing translation [" + lang + "] for key: ", key, translation);
+                if (Language.debugTranslations) {
+                    console.warn("Missing translation [" + lang + "] for key:", key, translation);
+                }
 
                 if (!Language.debugTranslations) {
                     if (translation["en"] != null) {

@@ -1,0 +1,32 @@
+# Fork addition: weekly merge of cavi-au/Consent-O-Matic into this fork.
+# If the merge conflicts, the run fails and GitHub notifies the repo owner.
+name: Sync with upstream
+
+on:
+  schedule:
+    - cron: "17 4 * * 1"   # Mondays 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+      - name: Merge upstream/master
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/cavi-au/Consent-O-Matic.git
+          git fetch upstream master
+          if git merge-base --is-ancestor upstream/master HEAD; then
+            echo "Already up to date with upstream."
+            exit 0
+          fi
+          git merge --no-edit upstream/master
+          git push origin HEAD:master

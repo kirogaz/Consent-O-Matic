@@ -63,6 +63,48 @@
         window.postMessage({ __comReport: "status", data: msg }, "*");
     }
 
+    // ---- Cleanup of remaining "legitimate interest" ----
+    // Runs only when the bridge says Consent-O-Matic is active on this site, and only if the
+    // stored choice already has zero consents (i.e. it was a rejection), so it never overrides
+    // categories the user chose to allow in Consent-O-Matic's settings.
+    let cleanupAllowed = false;
+    let cleanupDone = false;
+
+    function cleanupLegitimateInterest(sum) {
+        if (!cleanupAllowed || cleanupDone || !sum) {
+            return;
+        }
+        const liLeft = sum.purposeLI.length > 0 || sum.vendorLI > 0;
+        const rejected = sum.purposeConsents.length === 0 && sum.vendorConsents === 0;
+        if (!liLeft || !rejected) {
+            return;
+        }
+        let how = null;
+        try {
+            if (window.Didomi && typeof window.Didomi.setUserDisagreeToAll === "function") {
+                window.Didomi.setUserDisagreeToAll();
+                how = "Didomi.setUserDisagreeToAll()";
+            } else if (window.OneTrust && typeof window.OneTrust.RejectAll === "function") {
+                window.OneTrust.RejectAll();
+                how = "OneTrust.RejectAll()";
+            }
+        } catch (_) { /* ignore */ }
+        cleanupDone = true;
+        window.postMessage({
+            __comReport: "cleanup",
+            data: { how, before: { purposeLI: sum.purposeLI.length, vendorLI: sum.vendorLI } }
+        }, "*");
+    }
+
+    window.addEventListener("message", (e) => {
+        if (e.source === window && e.data && e.data.__comReport === "cleanup-allowed") {
+            cleanupAllowed = true;
+            if (lastTcf) {
+                cleanupLegitimateInterest(lastTcf);
+            }
+        }
+    });
+
     let lastTcf = null;
     function onTcData(d, ok) {
         if (!ok || !d || d.gdprApplies === false) {
@@ -71,6 +113,9 @@
         if (d.eventStatus === "tcloaded" || d.eventStatus === "useractioncomplete") {
             lastTcf = tcfSummary(d);
             post(lastTcf);
+            // also covers a choice stored on an earlier visit ("tcloaded");
+            // give the CMP a moment to finish its own save before touching it
+            setTimeout(() => cleanupLegitimateInterest(lastTcf), 1000);
         }
     }
 

@@ -19,7 +19,9 @@
         forbidden: "запрещены", details: "Все цели подробно", purpose: "Цель", consent: "Согл.", li: "Зак. инт.",
         source: "Данные из IAB TCF (__tcfapi), CMP id", noTcf: "Сайт не сообщает данные о согласии по стандарту TCF.",
         groups: "OneTrust: включённые группы", cookiebot: "Cookiebot", didomi: "Didomi: партнёров разрешено / запрещено",
-        allowed: "разрешено", denied: "запрещено"
+        allowed: "разрешено", denied: "запрещено",
+        cleaned: "Дочистка: законный интерес снят через", wasLI: "было: целей", wasVendors: "партнёров",
+        noCleanup: "Дочистка: у этого окна согласия нет функции, чтобы снять законный интерес автоматически."
     } : {
         handled: "Handled", clicks: "clicks", stored: "What the site has stored",
         clean: "Data sharing with vendors is off",
@@ -32,7 +34,9 @@
         forbidden: "denied", details: "All purposes", purpose: "Purpose", consent: "Cons.", li: "Leg. int.",
         source: "Data from IAB TCF (__tcfapi), CMP id", noTcf: "This site does not expose TCF consent data.",
         groups: "OneTrust: active groups", cookiebot: "Cookiebot", didomi: "Didomi: vendors allowed / denied",
-        allowed: "allowed", denied: "denied"
+        allowed: "allowed", denied: "denied",
+        cleaned: "Cleanup: legitimate interest removed via", wasLI: "before: purposes", wasVendors: "vendors",
+        noCleanup: "Cleanup: this consent banner has no function to remove legitimate interest automatically."
     };
     const PURPOSES = RU ? [
         "Хранение и доступ к данным на устройстве", "Базовая реклама", "Профиль для персонализированной рекламы",
@@ -128,11 +132,18 @@
         } catch (_) { /* no content script on this page */ }
 
         const hasOther = status && status.other && Object.keys(status.other).length;
-        if (!handled.length && !(status && status.tcf) && !hasOther) {
+        const cleanup = status && status.cleanup;
+        if (!handled.length && !(status && status.tcf) && !hasOther && !cleanup) {
             return;
         }
         root.hidden = false;
         handled.forEach((h) => root.append(el("div", "handled", "✔ " + T.handled + ": " + h.cmp + " (" + h.clicks + " " + T.clicks + ")")));
+        if (cleanup) {
+            const b = cleanup.before || { purposeLI: 0, vendorLI: 0 };
+            root.append(cleanup.how
+                ? el("div", "handled", "✔ " + T.cleaned + " " + cleanup.how + " (" + T.wasLI + " " + b.purposeLI + ", " + T.wasVendors + " " + b.vendorLI + ")")
+                : el("div", "small", T.noCleanup));
+        }
         root.append(el("h3", "", T.stored));
         if (status && status.tcf) {
             renderTcf(status.tcf);

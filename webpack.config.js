@@ -7,7 +7,9 @@ const glob = require("glob");
 module.exports = env=>({
   mode: 'production',
   entry: {
-    service: ['./Extension/background.js'],
+    service: ['./Extension/background.js', './Extension/report/reportBackground.js'],
+    'report-page': ['./Extension/report/tcfPage.js'],
+    'report-bridge': ['./Extension/report/tcfBridge.js'],
     content: [
       './Extension/contentScript.js',
       "./Extension/content.scss",
@@ -19,6 +21,8 @@ module.exports = env=>({
       './Extension/options.js',
       './Extension/popup.js',
       './Extension/ui.scss',
+      './Extension/report/reportPopup.js',
+      './Extension/report/report.scss',
       ...glob.sync(__dirname + "/Extension/*.html")
     ],
     editor: [

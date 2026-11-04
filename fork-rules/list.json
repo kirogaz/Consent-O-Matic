@@ -1,5 +1,9 @@
 {
   "references": [
-    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/clickio.json"
+    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/clickio.json",
+    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/cookieyes.json",
+    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/transcend.json",
+    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/fides.json",
+    "https://raw.githubusercontent.com/kirogaz/Consent-O-Matic/master/fork-rules/facebook.json"
   ]
 }

@@ -57,3 +57,23 @@ All new code is in `Extension/report/`. Changes to upstream files are kept to a 
 `npm ci && npx webpack --env target=chromium`, then load `build/` via
 `chrome://extensions` → "Load unpacked". Every push to `master` also builds it in GitHub
 Actions (artifact `consent-o-matic-chromium`).
+
+## Taken from open upstream pull requests
+
+Upstream has not merged anything since November 2025 while fixes keep coming in, so the fork
+carries a few of them. If upstream merges one later, the same change merges cleanly or the
+fork copy can simply be deleted.
+
+| Upstream PR | What | Where in the fork |
+|---|---|---|
+| [#597](https://github.com/cavi-au/Consent-O-Matic/pull/597) | `textFilter` ignores accents, typographic apostrophes/quotes and non-breaking spaces | `Extension/Tools.js` |
+| [#560](https://github.com/cavi-au/Consent-O-Matic/pull/560) | don't steal focus from the field you are typing in | `Extension/ConsentEngine.js` |
+| [#472](https://github.com/cavi-au/Consent-O-Matic/pull/472) | no crash on a rule target without `selector` | `Extension/Tools.js` |
+| [#551](https://github.com/cavi-au/Consent-O-Matic/pull/551) | new rule: CookieYes | `fork-rules/cookieyes.json` |
+| [#586](https://github.com/cavi-au/Consent-O-Matic/pull/586) | new rule: Transcend | `fork-rules/transcend.json` |
+| [#580](https://github.com/cavi-au/Consent-O-Matic/pull/580) | new rule: Fides | `fork-rules/fides.json` |
+| [#573](https://github.com/cavi-au/Consent-O-Matic/pull/573) | fixed Facebook rule | `fork-rules/facebook.json` |
+
+Also fixed in `fork-rules/clickio.json`: purpose toggles had only a `trueAction`, so switching one
+off threw `Cannot read properties of undefined (reading 'execute')` and the remaining purposes
+were skipped; they now use a checkbox `matcher` + `toggleAction`.
